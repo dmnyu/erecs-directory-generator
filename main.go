@@ -2,8 +2,8 @@ package main
 
 import (
 	"bufio"
-	"fmt"
 	"os"
+	"path/filepath"
 	"strings"
 )
 
@@ -19,13 +19,31 @@ type WorkOrderEntry struct {
 }
 
 func main() {
-	workOrder, err := openWorkOrder("digitization_work_order_report.tsv")
+	workOrderLoc := "digitization_work_order_report.tsv"
+	workOrder, err := openWorkOrder(workOrderLoc)
+	if err != nil {
+		panic(err)
+	}
+
+	directoryName := strings.Replace(workOrder[1].ResourceID, ".", "-", 1)
+
+	err = os.Mkdir(directoryName, 0755)
+	if err != nil {
+		panic(err)
+	}
+
+	metadataDir := filepath.Join(directoryName, "metadata")
+	err = os.Mkdir(metadataDir, 0755)
 	if err != nil {
 		panic(err)
 	}
 
 	for _, entry := range workOrder {
-		fmt.Println(entry)
+		subdir := filepath.Join(directoryName, entry.ComponentID)
+		err := os.Mkdir(subdir, 0755)
+		if err != nil {
+			panic(err)
+		}
 	}
 }
 
