@@ -2,6 +2,8 @@ package main
 
 import (
 	"bufio"
+	"flag"
+	"io/ioutil"
 	"os"
 	"path/filepath"
 	"strings"
@@ -18,26 +20,40 @@ type WorkOrderEntry struct {
 	ComponentID         string
 }
 
+var workOrderPtr = flag.String("workorder", "digitization_work_order_report.tsv", "the location of the work order")
+
 func main() {
-	workOrderLoc := "digitization_work_order_report.tsv"
-	workOrder, err := openWorkOrder(workOrderLoc)
+	flag.Parse()
+
+	//open the workorder as a slice of WorkOrderEntries
+	workOrder, err := openWorkOrder(*workOrderPtr)
 	if err != nil {
 		panic(err)
 	}
 
+	//get the name of the directory from the first line of the workorder
 	directoryName := strings.Replace(workOrder[1].ResourceID, ".", "-", 1)
 
+	//create the root directory
 	err = os.Mkdir(directoryName, 0755)
 	if err != nil {
 		panic(err)
 	}
 
+	//create the metadata directory
 	metadataDir := filepath.Join(directoryName, "metadata")
 	err = os.Mkdir(metadataDir, 0755)
 	if err != nil {
 		panic(err)
 	}
 
+	//copy the work order to the metadata directory
+	err = CopyWorkOrder(*workOrderPtr, metadataDir)
+	if err != nil {
+		panic(err)
+	}
+
+	//create cuid directories
 	for _, entry := range workOrder {
 		subdir := filepath.Join(directoryName, entry.ComponentID)
 		err := os.Mkdir(subdir, 0755)
@@ -45,6 +61,25 @@ func main() {
 			panic(err)
 		}
 	}
+}
+
+func CopyWorkOrder(workorder string, mdLocation string) error {
+	wo, err := ioutil.ReadFile(workorder)
+	if err != nil {
+		return err
+	}
+
+	wo2, err := os.Create(filepath.Join(mdLocation, "digitization_work_order_report.tsv"))
+	if err != nil {
+		return err
+	}
+
+	writer := bufio.NewWriter(wo2)
+	writer.Write(wo)
+	writer.Flush()
+	wo2.Close()
+
+	return nil
 }
 
 func openWorkOrder(fileLoc string) ([]WorkOrderEntry, error) {
