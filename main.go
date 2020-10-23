@@ -20,6 +20,12 @@ type WorkOrderEntry struct {
 	ComponentID         string
 }
 
+var partners = map[string]string{
+	"2": "tamwag",
+	"3": "fales",
+	"6": "nyarchives",
+}
+
 var workOrderPtr = flag.String("workorder", "digitization_work_order_report.tsv", "the location of the work order")
 
 func main() {
@@ -31,8 +37,11 @@ func main() {
 		panic(err)
 	}
 
-	//get the name of the directory from the first line of the workorder
-	directoryName := strings.Replace(workOrder[1].ResourceID, ".", "-", 1)
+	//get the name of the partner and collection directory from the first line of the workorder
+	partnerId := strings.Split(workOrder[1].URI, "/")[2]
+	collectionPrefix := strings.Split(workOrder[1].ResourceID, ".")[0]
+	collectionNum := strings.Split(workOrder[1].ResourceID, ".")[1]
+	directoryName := collectionPrefix + "-" + collectionNum
 
 	//create the root directory
 	err = os.Mkdir(directoryName, 0755)
@@ -53,6 +62,13 @@ func main() {
 		panic(err)
 	}
 
+	//create the transfer-info.txt file
+	err = CreateTransferInfoFile(metadataDir, partnerId, strings.ToLower(collectionPrefix),
+		strings.Replace(collectionNum, "0", "", 1))
+	if err != nil {
+		panic(err)
+	}
+
 	//create cuid directories
 	for _, entry := range workOrder {
 		subdir := filepath.Join(directoryName, entry.ComponentID)
@@ -61,6 +77,21 @@ func main() {
 			panic(err)
 		}
 	}
+}
+
+func CreateTransferInfoFile(metadataDir string, partnerId string, collectionPrefix string, collectionNum string) error {
+	transferInfoFileLoc := filepath.Join(metadataDir, "transfer-info.txt")
+	transferInfoFile, err := os.Create(transferInfoFileLoc)
+	if err != nil {
+		return err
+	}
+	defer transferInfoFile.Close()
+	writer := bufio.NewWriter(transferInfoFile)
+	writer.WriteString("Internal-sender-identifier: " + partners[partnerId] + "/" + collectionPrefix + collectionNum + "\n")
+	writer.WriteString(transferInfo)
+	writer.WriteString("nyu-dl-project-name: " + partners[partnerId] + "/" + collectionPrefix + collectionNum + "\n")
+	writer.Flush()
+	return nil
 }
 
 func CopyWorkOrder(workorder string, mdLocation string) error {
@@ -105,3 +136,16 @@ func openWorkOrder(fileLoc string) ([]WorkOrderEntry, error) {
 
 	return workOrder, nil
 }
+
+var transferInfo = `Source-organization: ACM
+Organization-address: 70 Washington Square South, New York, NY 10012
+Contact-name: 
+Contact-phone: 
+Contact-email: 
+nyu-dl-content-classification: processed_collection
+nyu-dl-package-type: AIP
+`
+
+//Internal-sender-identifier: fales/mss413
+//nyu-dl-project-name: fales/mss413
+//nyu-dl-archivesspace-resource-url: https://archivesspace.library.nyu.edu:8089/repositories/3/resources/1883
