@@ -1,16 +1,21 @@
 package main
 
-import "testing"
+import (
+	"testing"
+)
 
-func TestContainsCol(t *testing.T) {
+func TestGetRepos(t *testing.T) {
+	want := 3
+	got := len(repoCodes)
+	if want != got {
+		t.Errorf("Wanted %d, got %d", want, got)
+	}
+}
 
-	col := "oh66"
-	want := "bc5ded73-8a38-43f3-80a3-29ed3775d869"
-	got := getColUUID(col)
-
-	if got != want {
-		t.Log("Dumping Cols")
-		printCols()
-		t.Errorf("Wanted %s, Got %s", want, got)
+func TestGetEntryMapForRepo(t *testing.T) {
+	want := "a9d0a537-9afd-455f-bb26-ddfef5e3cdb8"
+	got := GetEntryMapForRepo("tamwag")["oh066"]
+	if want != got {
+		t.Errorf("Wanted %s, got %s", want, got)
 	}
 }

@@ -1,47 +1,43 @@
 package main
 
 import (
-	"bufio"
-	"fmt"
-	"os"
-	"strings"
+	"gopkg.in/yaml.v2"
+	"io/ioutil"
 )
 
-var collectionUUIDs = map[string]string{}
+var Repos = []Repo{}
+var repoCodes = map[string]int{}
 
-func getColsSize() int {
-	return len(collectionUUIDs)
+type YamlEntry struct {
+	Code string `yaml:"code"`
+	Id   string `yaml:"id"`
+}
+
+type Repo struct {
+	Name    string      `yaml:"name"`
+	Entries []YamlEntry `yaml:"entries"`
 }
 
 func init() {
-	yaml, err := os.Open("collections.yml")
+	source, err := ioutil.ReadFile("collections.yml")
+	if err != nil {
+		panic(err)
+	}
+	err = yaml.Unmarshal(source, &Repos)
 	if err != nil {
 		panic(err)
 	}
 
-	scanner := bufio.NewScanner(yaml)
-	for scanner.Scan() {
-		line := strings.Split(scanner.Text(), ": ")
-		collectionUUIDs[line[0]] = line[1]
-	}
-
-	if scanner.Err() != nil {
-		panic(scanner.Err())
+	for i, r := range Repos {
+		repoCodes[r.Name] = i
 	}
 }
 
-func getColUUID(col string) string {
-	for k, v := range collectionUUIDs {
-		if k == col {
-			return v
-		}
+func GetEntryMapForRepo(repo string) map[string]string {
+	uuids := map[string]string{}
+	entries := Repos[repoCodes[repo]].Entries
+	for _, entry := range entries {
+		uuids[entry.Code] = entry.Id
 	}
-
-	return ""
-}
-
-func printCols() {
-	for k, v := range collectionUUIDs {
-		fmt.Printf("key: %s value: %s\n", k, v)
-	}
+	return uuids
 }
