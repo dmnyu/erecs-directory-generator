@@ -3,7 +3,6 @@ package main
 import (
 	"bufio"
 	"flag"
-	"fmt"
 	"io/ioutil"
 	"os"
 	"path/filepath"
@@ -92,15 +91,7 @@ func CreateTransferInfoFile(metadataDir string, partnerId string, collectionPref
 	writer.WriteString(transferInfo)
 	writer.WriteString("nyu-dl-project-name: " + partners[partnerId] + "/" + collectionPrefix + collectionNum + "\n")
 	writer.Flush()
-	colId := strings.TrimSpace(collectionPrefix + collectionNum)
-	uuid := getColUUID(colId)
-	fmt.Println(uuid)
-	if uuid == "" {
-		fmt.Println("WARNING: no UUID in configuration file for: ", colId)
-	} else {
-		writer.WriteString("nyu-dl-rstar-collection-id: " + uuid)
-		writer.Flush()
-	}
+
 	return nil
 }
 
