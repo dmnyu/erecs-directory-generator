@@ -41,3 +41,8 @@ func GetEntryMapForRepo(repo string) map[string]string {
 	}
 	return uuids
 }
+
+func GetUUID(repo string, code string) string {
+	uuids := GetEntryMapForRepo(repo)
+	return uuids[code]
+}

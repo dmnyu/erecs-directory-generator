@@ -63,8 +63,7 @@ func main() {
 	}
 
 	//create the transfer-info.txt file
-	err = CreateTransferInfoFile(metadataDir, partnerId, strings.ToLower(collectionPrefix),
-		strings.Replace(collectionNum, "0", "", 1))
+	err = CreateTransferInfoFile(metadataDir, partnerId, strings.ToLower(collectionPrefix), collectionNum)
 	if err != nil {
 		panic(err)
 	}
@@ -80,6 +79,9 @@ func main() {
 }
 
 func CreateTransferInfoFile(metadataDir string, partnerId string, collectionPrefix string, collectionNum string) error {
+	partner := partners[partnerId]
+	code := strings.TrimSpace(collectionPrefix + collectionNum)
+	uuid := GetUUID(partner, code)
 	transferInfoFileLoc := filepath.Join(metadataDir, "transfer-info.txt")
 	transferInfoFile, err := os.Create(transferInfoFileLoc)
 	if err != nil {
@@ -87,11 +89,11 @@ func CreateTransferInfoFile(metadataDir string, partnerId string, collectionPref
 	}
 	defer transferInfoFile.Close()
 	writer := bufio.NewWriter(transferInfoFile)
-	writer.WriteString("Internal-sender-identifier: " + partners[partnerId] + "/" + collectionPrefix + collectionNum + "\n")
+	writer.WriteString("Internal-sender-identifier: " + partner + "/" + code + "\n")
 	writer.WriteString(transferInfo)
-	writer.WriteString("nyu-dl-project-name: " + partners[partnerId] + "/" + collectionPrefix + collectionNum + "\n")
+	writer.WriteString("nyu-dl-project-name: " + partner + "/" + code + "\n")
+	writer.WriteString("nyu-dl-rstar-uuid: " + uuid)
 	writer.Flush()
-
 	return nil
 }
 
