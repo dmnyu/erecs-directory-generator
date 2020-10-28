@@ -3,6 +3,7 @@ package main
 import (
 	"bufio"
 	"flag"
+	"fmt"
 	"io/ioutil"
 	"os"
 	"path/filepath"
@@ -27,6 +28,7 @@ var partners = map[string]string{
 }
 
 var workOrderPtr = flag.String("workorder", "digitization_work_order_report.tsv", "the location of the work order")
+var resourceIdPtr = flag.String("resourceId", "0", "the aspacce id of the resource")
 
 func main() {
 	flag.Parse()
@@ -92,7 +94,8 @@ func CreateTransferInfoFile(metadataDir string, partnerId string, collectionPref
 	writer.WriteString("Internal-sender-identifier: " + partner + "/" + code + "\n")
 	writer.WriteString(transferInfo)
 	writer.WriteString("nyu-dl-project-name: " + partner + "/" + code + "\n")
-	writer.WriteString("nyu-dl-rstar-uuid: " + uuid)
+	writer.WriteString("nyu-dl-rstar-uuid: " + uuid + "\n")
+	writer.WriteString(fmt.Sprintf("nyu-dl-archivesspace-resource-url: https://archivesspace.library.nyu.edu:8089/repositories/%s/resources/%s", partnerId, *resourceIdPtr))
 	writer.Flush()
 	return nil
 }
@@ -149,6 +152,4 @@ nyu-dl-content-classification: processed_collection
 nyu-dl-package-type: AIP
 `
 
-//Internal-sender-identifier: fales/mss413
-//nyu-dl-project-name: fales/mss413
 //nyu-dl-archivesspace-resource-url: https://archivesspace.library.nyu.edu:8089/repositories/3/resources/1883
