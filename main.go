@@ -151,5 +151,3 @@ Contact-email:
 nyu-dl-content-classification: processed_collection
 nyu-dl-package-type: AIP
 `
-
-//nyu-dl-archivesspace-resource-url: https://archivesspace.library.nyu.edu:8089/repositories/3/resources/1883
