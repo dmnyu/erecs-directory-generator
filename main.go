@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"flag"
 	"fmt"
+	"github.com/nyu-acm/erecs-directory-generator/collections"
 	"io/ioutil"
 	"os"
 	"path/filepath"
@@ -28,7 +29,7 @@ var partners = map[string]string{
 }
 
 var workOrderPtr = flag.String("workorder", "digitization_work_order_report.tsv", "the location of the work order")
-var resourceIdPtr = flag.String("resourceId", "0", "the aspacce id of the resource")
+var resourceIdPtr = flag.String("resourceId", "0", "the aspace id of the resource")
 
 func main() {
 	flag.Parse()
@@ -43,7 +44,7 @@ func main() {
 	partnerId := strings.Split(workOrder[1].URI, "/")[2]
 	collectionPrefix := strings.Split(workOrder[1].ResourceID, ".")[0]
 	collectionNum := strings.Split(workOrder[1].ResourceID, ".")[1]
-	directoryName := collectionPrefix + "-" + collectionNum
+	directoryName := filepath.Join("/Volumes/ACMBornDigital/Archivematica-Staging",collectionPrefix + "-" + collectionNum)
 
 	//create the root directory
 	err = os.Mkdir(directoryName, 0755)
@@ -83,7 +84,7 @@ func main() {
 func CreateTransferInfoFile(metadataDir string, partnerId string, collectionPrefix string, collectionNum string) error {
 	partner := partners[partnerId]
 	code := strings.TrimSpace(collectionPrefix + collectionNum)
-	uuid := GetUUID(partner, code)
+	uuid := collections.GetUUID(partner, code)
 	transferInfoFileLoc := filepath.Join(metadataDir, "transfer-info.txt")
 	transferInfoFile, err := os.Create(transferInfoFileLoc)
 	if err != nil {

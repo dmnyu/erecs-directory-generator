@@ -1,4 +1,4 @@
-package main
+package collections
 
 import (
 	"gopkg.in/yaml.v2"
