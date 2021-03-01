@@ -178,7 +178,7 @@ func CreateTransferInfoFile(metadataDir string, partnerId string, collectionPref
 	writer.WriteString(transferInfo)
 	writer.WriteString("nyu-dl-project-name: " + partner[0] + "/" + code + "\n")
 	writer.WriteString("nyu-dl-rstar-collection-id: " + uuid + "\n")
-	writer.WriteString(fmt.Sprintf("nyu-dl-archivesspace-resource-url: https://archivesspace.library.nyu.edu:8089/repositories/%s/resources/%d", partnerId, *resourceIdPtr))
+	writer.WriteString(fmt.Sprintf("nyu-dl-archivesspace-resource-url: https://archivesspace.library.nyu.edu:8489/repositories/%s/resources/%d", partnerId, *resourceIdPtr))
 	writer.Flush()
 	return nil
 }
