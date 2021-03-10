@@ -44,11 +44,11 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-
+	fmt.Println(workOrder)
 	//get the name of the partner and collection directory from the first line of the workorder
-	partnerId := strings.Split(workOrder[1].URI, "/")[2]
-	collectionPrefix := strings.Split(workOrder[1].ResourceID, ".")[0]
-	collectionNum := strings.Split(workOrder[1].ResourceID, ".")[1]
+	partnerId := strings.Split(workOrder[0].URI, "/")[2]
+	collectionPrefix := strings.Split(workOrder[0].ResourceID, ".")[0]
+	collectionNum := strings.Split(workOrder[0].ResourceID, ".")[1]
 	directoryName := filepath.Join(rwsLocation, partners[partnerId][1] + "_" + collectionPrefix + "_" + collectionNum)
 
 	if *batchPtr > 0 {
